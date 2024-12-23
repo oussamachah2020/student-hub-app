@@ -98,6 +98,16 @@ const Page = (props: Props) => {
               placeholder="Enter your password"
             />
           </View>
+          <Link
+            href={"/password-reset"}
+            style={{
+              textAlign: "right",
+              color: "#3880FF",
+              fontFamily: "Poppins-Regular",
+            }}
+          >
+            Forget password ?
+          </Link>
           <Button
             mode="contained"
             style={{

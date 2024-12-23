@@ -1,5 +1,5 @@
 import Animation from "@/components/lottiePlayer";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 import React, { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Button, Checkbox, TextInput } from "react-native-paper";
@@ -145,7 +145,7 @@ const Page = (props: Props) => {
               fontSize: 16,
               fontFamily: "Poppins-Medium",
             }}
-            onPress={() => console.log("Pressed")}
+            onPress={() => router.push("/setup")}
           >
             Sign Up
           </Button>
