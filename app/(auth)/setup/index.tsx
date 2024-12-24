@@ -1,7 +1,8 @@
 import React from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
 import Feather from "@expo/vector-icons/Feather";
-import { Button } from "react-native-paper";
+import { Button, TextInput } from "react-native-paper";
+import { PhoneInputZone } from "@/components/PhoneInput";
 
 type Props = {};
 
@@ -53,6 +54,83 @@ const Page = () => {
           Choose
         </Button>
       </View>
+      <View
+        style={{
+          gap: 10,
+        }}
+      >
+        <TextInput
+          outlineStyle={{
+            borderRadius: 15,
+          }}
+          theme={{ colors: { primary: "#F7931E" } }}
+          contentStyle={{
+            fontFamily: "Poppins-Medium",
+          }}
+          style={{
+            backgroundColor: "#fff",
+          }}
+          autoCapitalize="none"
+          selectionColor="#F7931E"
+          left={
+            <TextInput.Icon icon={"account-edit"} color={"rgba(0,0,0,0.5)"} />
+          }
+          mode="outlined"
+          placeholder="Enter your username"
+        />
+        <TextInput
+          outlineStyle={{
+            borderRadius: 15,
+          }}
+          theme={{ colors: { primary: "#F7931E" } }}
+          contentStyle={{
+            fontFamily: "Poppins-Medium",
+          }}
+          style={{
+            backgroundColor: "#fff",
+          }}
+          autoCapitalize="none"
+          selectionColor="#F7931E"
+          left={<TextInput.Icon icon={"account"} color={"rgba(0,0,0,0.5)"} />}
+          mode="outlined"
+          placeholder="Enter your first name"
+        />
+        <TextInput
+          outlineStyle={{
+            borderRadius: 15,
+          }}
+          theme={{ colors: { primary: "#F7931E" } }}
+          contentStyle={{
+            fontFamily: "Poppins-Medium",
+          }}
+          style={{
+            backgroundColor: "#fff",
+          }}
+          autoCapitalize="none"
+          selectionColor="#F7931E"
+          left={<TextInput.Icon icon={"account"} color={"rgba(0,0,0,0.5)"} />}
+          mode="outlined"
+          placeholder="Enter your last name"
+        />
+        <PhoneInputZone />
+      </View>
+      <Button
+        mode="contained"
+        style={{
+          backgroundColor: "#F7931E",
+          borderRadius: 50,
+          height: 52,
+          justifyContent: "center",
+        }}
+        labelStyle={{
+          fontWeight: "600",
+          fontSize: 16,
+          fontFamily: "Poppins-Medium",
+        }}
+        icon={"check"}
+      >
+        Done
+      </Button>
     </View>
   );
 };

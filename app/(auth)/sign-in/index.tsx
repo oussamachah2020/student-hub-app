@@ -1,13 +1,29 @@
+import { login } from "@/api/auth/index";
 import Animation from "@/components/lottiePlayer";
+import { Tokens } from "@/types/auth";
+import { useAuthStore } from "@/zustand/auth-store";
 import { Link } from "expo-router";
 import React, { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Button, TextInput } from "react-native-paper";
 
-type Props = {};
-
-const Page = (props: Props) => {
+const Page = () => {
   const [visible, setIsVisible] = useState(false);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+
+  const { setTokens } = useAuthStore();
+
+  function SignIn() {
+    login(username, password)
+      .then((data) => {
+        if (data) {
+          const tokens = data as Tokens;
+          setTokens(tokens.accessToken, tokens.refreshToken);
+        }
+      })
+      .catch((err) => console.error(err));
+  }
 
   function togglePasswordVisibility() {
     setIsVisible((prev) => !prev);
@@ -41,63 +57,55 @@ const Page = (props: Props) => {
           </Text>
         </View>
         <View style={styles.formContainer}>
-          <View
-            style={{
-              gap: 6,
+          <TextInput
+            outlineStyle={{
+              borderRadius: 15,
             }}
-          >
-            <TextInput
-              outlineStyle={{
-                borderRadius: 15,
-              }}
-              style={{
-                backgroundColor: "#fff",
-              }}
-              contentStyle={{
-                fontFamily: "Poppins-Medium",
-              }}
-              autoCapitalize="none"
-              keyboardType="email-address"
-              spellCheck={false}
-              autoCorrect={false}
-              selectionColor="#F7931E"
-              left={<TextInput.Icon icon={"email"} color={"rgba(0,0,0,0.5)"} />}
-              mode="outlined"
-              placeholder="Enter your mail"
-              theme={{ colors: { primary: "#F7931E" } }}
-            />
-          </View>
-          <View
             style={{
-              gap: 6,
+              backgroundColor: "#fff",
             }}
-          >
-            <TextInput
-              outlineStyle={{
-                borderRadius: 15,
-              }}
-              theme={{ colors: { primary: "#F7931E" } }}
-              contentStyle={{
-                fontFamily: "Poppins-Medium",
-              }}
-              style={{
-                backgroundColor: "#fff",
-              }}
-              autoCapitalize="none"
-              secureTextEntry={!visible}
-              right={
-                <TextInput.Icon
-                  icon={!visible ? "eye-off" : "eye"}
-                  color={"rgba(0,0,0,0.5)"}
-                  onPress={togglePasswordVisibility}
-                />
-              }
-              selectionColor="#F7931E"
-              left={<TextInput.Icon icon={"lock"} color={"rgba(0,0,0,0.5)"} />}
-              mode="outlined"
-              placeholder="Enter your password"
-            />
-          </View>
+            contentStyle={{
+              fontFamily: "Poppins-Medium",
+            }}
+            onChangeText={(text) => setUsername(text)}
+            autoCapitalize="none"
+            keyboardType="email-address"
+            spellCheck={false}
+            autoCorrect={false}
+            selectionColor="#F7931E"
+            left={<TextInput.Icon icon={"email"} color={"rgba(0,0,0,0.5)"} />}
+            mode="outlined"
+            placeholder="Enter your e-mail / username"
+            theme={{ colors: { primary: "#F7931E" } }}
+          />
+
+          <TextInput
+            outlineStyle={{
+              borderRadius: 15,
+            }}
+            theme={{ colors: { primary: "#F7931E" } }}
+            contentStyle={{
+              fontFamily: "Poppins-Medium",
+            }}
+            onChangeText={(text) => setPassword(text)}
+            style={{
+              backgroundColor: "#fff",
+            }}
+            autoCapitalize="none"
+            secureTextEntry={!visible}
+            right={
+              <TextInput.Icon
+                icon={!visible ? "eye-off" : "eye"}
+                color={"rgba(0,0,0,0.5)"}
+                onPress={togglePasswordVisibility}
+              />
+            }
+            selectionColor="#F7931E"
+            left={<TextInput.Icon icon={"lock"} color={"rgba(0,0,0,0.5)"} />}
+            mode="outlined"
+            placeholder="Enter your password"
+          />
+
           <Link
             href={"/password-reset"}
             style={{
@@ -116,12 +124,13 @@ const Page = (props: Props) => {
               height: 52,
               justifyContent: "center",
             }}
+            disabled={!username || !password}
             labelStyle={{
               fontWeight: "600",
               fontSize: 16,
               fontFamily: "Poppins-Medium",
             }}
-            onPress={() => console.log("Pressed")}
+            onPress={SignIn}
           >
             Sign In
           </Button>

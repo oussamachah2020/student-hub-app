@@ -1,4 +1,7 @@
+import { register } from "@/api/auth";
 import Animation from "@/components/lottiePlayer";
+import { Tokens } from "@/types/auth";
+import { useAuthStore } from "@/zustand/auth-store";
 import { Link, router } from "expo-router";
 import React, { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
@@ -9,9 +12,25 @@ type Props = {};
 const Page = (props: Props) => {
   const [visible, setIsVisible] = useState(false);
   const [checked, setChecked] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const { setTokens } = useAuthStore();
 
   function togglePasswordVisibility() {
     setIsVisible((prev) => !prev);
+  }
+
+  function createAccount() {
+    register(email, password)
+      .then((data) => {
+        if (data) {
+          const tokens = data as Tokens;
+          setTokens(tokens.accessToken, tokens.refreshToken);
+
+          router.push("/setup");
+        }
+      })
+      .catch((err) => console.error(err));
   }
 
   return (
@@ -50,6 +69,7 @@ const Page = (props: Props) => {
             style={{
               backgroundColor: "#fff",
             }}
+            onChangeText={(text) => setEmail(text)}
             contentStyle={{
               fontFamily: "Poppins-Medium",
             }}
@@ -68,6 +88,7 @@ const Page = (props: Props) => {
             outlineStyle={{
               borderRadius: 15,
             }}
+            onChangeText={(text) => setPassword(text)}
             theme={{ colors: { primary: "#F7931E" } }}
             contentStyle={{
               fontFamily: "Poppins-Medium",
@@ -145,6 +166,7 @@ const Page = (props: Props) => {
               fontSize: 16,
               fontFamily: "Poppins-Medium",
             }}
+            // disabled={!email || !password || password.length < 8}
             onPress={() => router.push("/setup")}
           >
             Sign Up
