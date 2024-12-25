@@ -1,6 +1,5 @@
-import { no_auth_instance } from "@/lib/axios";
-import { ROLE, Tokens } from "@/types/auth";
-import { useAuthStore } from "@/zustand/auth-store";
+import { auth_instance, no_auth_instance } from "@/lib/axios";
+import { Profile, ROLE, Tokens } from "@/types/auth";
 
 export async function login(username: string, password: string) {
   try {
@@ -28,6 +27,23 @@ export async function register(email: string, password: string) {
 
     if (response.status === 200) {
       const data: Tokens = await response.data;
+      return data;
+    }
+  } catch (err) {
+    return err;
+  }
+}
+
+export async function updateProfile(profile: Profile, email: string) {
+  try {
+    const response = await auth_instance.put("/auth/edit", {
+      ...profile,
+      email,
+      phoneUrl: "",
+    });
+
+    if (response.status === 200) {
+      const data = await response.data;
       return data;
     }
   } catch (err) {

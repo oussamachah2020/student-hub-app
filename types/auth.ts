@@ -14,3 +14,10 @@ export enum ROLE {
   STUDENT = "STUDENT",
   TEACHER = "TEACHER",
 }
+
+export interface Profile {
+  username: string;
+  firstName: string;
+  lastName: string;
+  phone: string;
+}

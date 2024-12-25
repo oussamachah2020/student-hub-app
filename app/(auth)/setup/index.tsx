@@ -1,20 +1,52 @@
-import React from "react";
+import React, { useState } from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
-import Feather from "@expo/vector-icons/Feather";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Button, TextInput } from "react-native-paper";
-import { PhoneInputZone } from "@/components/PhoneInput";
+import PhoneInput, { ICountry } from "react-native-international-phone-number";
+import { updateProfile } from "@/api/auth";
+import { router, useLocalSearchParams } from "expo-router";
 
-type Props = {};
+// Zod Validation Schema
+const schema = z.object({
+  username: z.string().min(1, "Username is required"),
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+  phone: z.string().min(1, "Phone number is required"), // Adjust validation as needed
+});
+
+type FormData = z.infer<typeof schema>;
 
 const Page = () => {
+  const [selectedCountry, setSelectedCountry] = useState<null | ICountry>(null);
+  const { email } = useLocalSearchParams<{ email: string }>();
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormData>({
+    resolver: zodResolver(schema),
+  });
+
+  function handleSelectedCountry(country: ICountry) {
+    setSelectedCountry(country);
+  }
+
+  const onSubmit = (data: FormData) => {
+    updateProfile(data, email)
+      .then((data) => {
+        if (data) {
+          router.replace("/home");
+        }
+      })
+      .catch((err) => console.error(err));
+  };
+
   return (
     <View style={styles.container}>
-      <View
-        style={{
-          justifyContent: "flex-start",
-          alignItems: "flex-start",
-        }}
-      >
+      <View style={{ justifyContent: "flex-start", alignItems: "flex-start" }}>
         <Text style={styles.title}>Almost</Text>
         <Text style={{ ...styles.title, color: "#000", marginTop: -10 }}>
           there !
@@ -54,65 +86,108 @@ const Page = () => {
           Choose
         </Button>
       </View>
-      <View
-        style={{
-          gap: 10,
-        }}
-      >
-        <TextInput
-          outlineStyle={{
-            borderRadius: 15,
-          }}
-          theme={{ colors: { primary: "#F7931E" } }}
-          contentStyle={{
-            fontFamily: "Poppins-Medium",
-          }}
-          style={{
-            backgroundColor: "#fff",
-          }}
-          autoCapitalize="none"
-          selectionColor="#F7931E"
-          left={
-            <TextInput.Icon icon={"account-edit"} color={"rgba(0,0,0,0.5)"} />
-          }
-          mode="outlined"
-          placeholder="Enter your username"
+      <View style={{ gap: 10 }}>
+        <Controller
+          name="username"
+          control={control}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+              outlineStyle={{ borderRadius: 15 }}
+              theme={{ colors: { primary: "#F7931E" } }}
+              contentStyle={{ fontFamily: "Poppins-Medium" }}
+              style={{ backgroundColor: "#fff" }}
+              autoCapitalize="none"
+              selectionColor="#F7931E"
+              left={
+                <TextInput.Icon
+                  icon={"account-edit"}
+                  color={"rgba(0,0,0,0.5)"}
+                />
+              }
+              mode="outlined"
+              placeholder="Enter your username"
+              onBlur={onBlur}
+              onChangeText={onChange}
+              value={value}
+              error={!!errors.username}
+            />
+          )}
         />
-        <TextInput
-          outlineStyle={{
-            borderRadius: 15,
-          }}
-          theme={{ colors: { primary: "#F7931E" } }}
-          contentStyle={{
-            fontFamily: "Poppins-Medium",
-          }}
-          style={{
-            backgroundColor: "#fff",
-          }}
-          autoCapitalize="none"
-          selectionColor="#F7931E"
-          left={<TextInput.Icon icon={"account"} color={"rgba(0,0,0,0.5)"} />}
-          mode="outlined"
-          placeholder="Enter your first name"
+        {errors.username && (
+          <Text style={styles.errorText}>{errors.username.message}</Text>
+        )}
+
+        <Controller
+          name="firstName"
+          control={control}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+              outlineStyle={{ borderRadius: 15 }}
+              theme={{ colors: { primary: "#F7931E" } }}
+              contentStyle={{ fontFamily: "Poppins-Medium" }}
+              style={{ backgroundColor: "#fff" }}
+              autoCapitalize="none"
+              selectionColor="#F7931E"
+              left={
+                <TextInput.Icon icon={"account"} color={"rgba(0,0,0,0.5)"} />
+              }
+              mode="outlined"
+              placeholder="Enter your first name"
+              onBlur={onBlur}
+              onChangeText={onChange}
+              value={value}
+              error={!!errors.firstName}
+            />
+          )}
         />
-        <TextInput
-          outlineStyle={{
-            borderRadius: 15,
-          }}
-          theme={{ colors: { primary: "#F7931E" } }}
-          contentStyle={{
-            fontFamily: "Poppins-Medium",
-          }}
-          style={{
-            backgroundColor: "#fff",
-          }}
-          autoCapitalize="none"
-          selectionColor="#F7931E"
-          left={<TextInput.Icon icon={"account"} color={"rgba(0,0,0,0.5)"} />}
-          mode="outlined"
-          placeholder="Enter your last name"
+        {errors.firstName && (
+          <Text style={styles.errorText}>{errors.firstName.message}</Text>
+        )}
+
+        <Controller
+          name="lastName"
+          control={control}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+              outlineStyle={{ borderRadius: 15 }}
+              theme={{ colors: { primary: "#F7931E" } }}
+              contentStyle={{ fontFamily: "Poppins-Medium" }}
+              style={{ backgroundColor: "#fff" }}
+              autoCapitalize="none"
+              selectionColor="#F7931E"
+              left={
+                <TextInput.Icon icon={"account"} color={"rgba(0,0,0,0.5)"} />
+              }
+              mode="outlined"
+              placeholder="Enter your last name"
+              onBlur={onBlur}
+              onChangeText={onChange}
+              value={value}
+              error={!!errors.lastName}
+            />
+          )}
         />
-        <PhoneInputZone />
+        {errors.lastName && (
+          <Text style={styles.errorText}>{errors.lastName.message}</Text>
+        )}
+
+        <Controller
+          name="phone"
+          control={control}
+          render={({ field: { onChange, onBlur, value } }) => (
+            <PhoneInput
+              value={value}
+              onBlur={onBlur}
+              onChangePhoneNumber={onChange}
+              selectedCountry={selectedCountry}
+              onChangeSelectedCountry={handleSelectedCountry}
+              defaultCountry="MA"
+            />
+          )}
+        />
+        {errors.phone && (
+          <Text style={styles.errorText}>{errors.phone.message}</Text>
+        )}
       </View>
       <Button
         mode="contained"
@@ -128,6 +203,7 @@ const Page = () => {
           fontFamily: "Poppins-Medium",
         }}
         icon={"check"}
+        onPress={handleSubmit(onSubmit)}
       >
         Done
       </Button>
@@ -151,7 +227,10 @@ const styles = StyleSheet.create({
     color: "#F7931E",
     fontFamily: "Poppins-SemiBold",
   },
-  formContainer: {
-    gap: 20,
+  errorText: {
+    color: "red",
+    fontSize: 12,
+    marginTop: -8,
+    fontFamily: "Poppins-Medium",
   },
 });

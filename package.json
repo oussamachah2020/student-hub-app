@@ -17,6 +17,7 @@
   "dependencies": {
     "@babel/runtime": "^7.26.0",
     "@expo/vector-icons": "^14.0.2",
+    "@hookform/resolvers": "^3.9.1",
     "@lottiefiles/dotlottie-react": "^0.9.1",
     "@lottiefiles/lottie-player": "^2.0.4",
     "@lottiefiles/react-lottie-player": "^3.5.4",
@@ -40,6 +41,7 @@
     "lottie-react-native": "^7.0.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
+    "react-hook-form": "^7.54.2",
     "react-native": "0.76.5",
     "react-native-gesture-handler": "~2.20.2",
     "react-native-international-phone-number": "^0.8.4",
@@ -50,6 +52,7 @@
     "react-native-vector-icons": "^10.2.0",
     "react-native-web": "~0.19.13",
     "react-native-webview": "13.12.5",
+    "zod": "^3.24.1",
     "zustand": "^5.0.2"
   },
   "devDependencies": {

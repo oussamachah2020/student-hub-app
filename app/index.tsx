@@ -1,4 +1,6 @@
 import Animation from "@/components/lottiePlayer";
+import { isTokenExpired } from "@/utils/token-verifier";
+import { useAuthStore } from "@/zustand/auth-store";
 import { useRootNavigationState, useRouter } from "expo-router";
 import React, { useEffect } from "react";
 import { Dimensions, StyleSheet, Text, View } from "react-native";
@@ -8,16 +10,25 @@ type Props = {};
 const index = (props: Props) => {
   const router = useRouter();
   const rootNavigation = useRootNavigationState();
+  const { accessToken } = useAuthStore();
 
   useEffect(() => {
     if (!rootNavigation) return;
 
     const redirection = setInterval(() => {
-      router.replace("/sign-in");
+      if (accessToken) {
+        if (!isTokenExpired(accessToken)) {
+          router.replace("/home");
+        } else {
+          router.replace("/sign-in");
+        }
+      } else {
+        router.replace("/sign-in");
+      }
     }, 5000);
 
     return () => clearInterval(redirection);
-  }, [rootNavigation]);
+  }, [accessToken, rootNavigation]);
 
   return (
     <View style={styles.animationContainer}>
