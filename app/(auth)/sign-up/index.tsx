@@ -1,14 +1,53 @@
+import { register } from "@/api/auth";
 import Animation from "@/components/lottiePlayer";
-import { Link } from "expo-router";
+import { Tokens } from "@/types/auth";
+import { useAuthStore } from "@/zustand/auth-store";
+import { Link, router } from "expo-router";
 import React, { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Button, Checkbox, TextInput } from "react-native-paper";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import z from "zod";
 
 type Props = {};
 
+const FormSchema = z.object({
+  email: z.string().email(),
+  password: z
+    .string()
+    .min(8, { message: "Password must be at least 8 characters" })
+    .max(64, { message: "Password should not surpass 64 charcters" }),
+});
+
 const Page = (props: Props) => {
+  const {
+    control,
+    handleSubmit,
+    formState: { errors, isValid, isSubmitting },
+  } = useForm<z.infer<typeof FormSchema>>({
+    resolver: zodResolver(FormSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
   const [visible, setIsVisible] = useState(false);
   const [checked, setChecked] = useState(false);
+  const { setTokens } = useAuthStore();
+
+  const onSubmit = (values: z.infer<typeof FormSchema>) => {
+    register(values.email, values.password)
+      .then((data) => {
+        if (data) {
+          const tokens = data as Tokens;
+          setTokens(tokens.accessToken, tokens.refreshToken);
+          router.push({ pathname: "/setup", params: { email: values.email } });
+        }
+      })
+      .catch((err) => console.error(err));
+  };
 
   function togglePasswordVisibility() {
     setIsVisible((prev) => !prev);
@@ -43,52 +82,82 @@ const Page = (props: Props) => {
           </Text>
         </View>
         <View style={styles.formContainer}>
-          <TextInput
-            outlineStyle={{
-              borderRadius: 15,
+          <Controller
+            control={control}
+            rules={{
+              required: true,
             }}
-            style={{
-              backgroundColor: "#fff",
-            }}
-            contentStyle={{
-              fontFamily: "Poppins-Medium",
-            }}
-            autoCapitalize="none"
-            keyboardType="email-address"
-            spellCheck={false}
-            autoCorrect={false}
-            selectionColor="#F7931E"
-            left={<TextInput.Icon icon={"email"} color={"rgba(0,0,0,0.5)"} />}
-            mode="outlined"
-            placeholder="Enter your mail"
-            theme={{ colors: { primary: "#F7931E" } }}
-          />
-
-          <TextInput
-            outlineStyle={{
-              borderRadius: 15,
-            }}
-            theme={{ colors: { primary: "#F7931E" } }}
-            contentStyle={{
-              fontFamily: "Poppins-Medium",
-            }}
-            style={{
-              backgroundColor: "#fff",
-            }}
-            autoCapitalize="none"
-            secureTextEntry={!visible}
-            right={
-              <TextInput.Icon
-                icon={!visible ? "eye-off" : "eye"}
-                color={"rgba(0,0,0,0.5)"}
-                onPress={togglePasswordVisibility}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                outlineStyle={{
+                  borderRadius: 15,
+                }}
+                style={{
+                  backgroundColor: "#fff",
+                }}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                value={value}
+                contentStyle={{
+                  fontFamily: "Poppins-Medium",
+                }}
+                autoCapitalize="none"
+                keyboardType="email-address"
+                spellCheck={false}
+                autoCorrect={false}
+                selectionColor="#F7931E"
+                left={
+                  <TextInput.Icon icon={"email"} color={"rgba(0,0,0,0.5)"} />
+                }
+                mode="outlined"
+                placeholder="Enter your mail"
+                theme={{ colors: { primary: "#F7931E" } }}
               />
-            }
-            selectionColor="#F7931E"
-            left={<TextInput.Icon icon={"lock"} color={"rgba(0,0,0,0.5)"} />}
-            mode="outlined"
-            placeholder="Enter your password"
+            )}
+            name="email"
           />
+          {errors.email && <Text>This is required.</Text>}
+          <Controller
+            control={control}
+            rules={{
+              required: true,
+            }}
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                outlineStyle={{
+                  borderRadius: 15,
+                }}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                value={value}
+                theme={{ colors: { primary: "#F7931E" } }}
+                contentStyle={{
+                  fontFamily: "Poppins-Medium",
+                }}
+                style={{
+                  backgroundColor: "#fff",
+                }}
+                autoCapitalize="none"
+                secureTextEntry={!visible}
+                right={
+                  <TextInput.Icon
+                    icon={!visible ? "eye-off" : "eye"}
+                    color={"rgba(0,0,0,0.5)"}
+                    onPress={togglePasswordVisibility}
+                  />
+                }
+                selectionColor="#F7931E"
+                left={
+                  <TextInput.Icon icon={"lock"} color={"rgba(0,0,0,0.5)"} />
+                }
+                mode="outlined"
+                placeholder="Enter your password"
+              />
+            )}
+            name="password"
+          />
+          {errors.password && <Text>This is required.</Text>}
+
           <View
             style={{
               flexDirection: "row",
@@ -145,7 +214,8 @@ const Page = (props: Props) => {
               fontSize: 16,
               fontFamily: "Poppins-Medium",
             }}
-            onPress={() => console.log("Pressed")}
+            disabled={!isValid || isSubmitting}
+            onPress={handleSubmit(onSubmit)}
           >
             Sign Up
           </Button>
